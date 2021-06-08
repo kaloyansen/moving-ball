@@ -47,35 +47,45 @@ root.appendChild(screen);
 
 // move any direction
 
+var frameRate = 1/40; // Seconds
+var frameDelay = frameRate * 1000; // ms
+var loopTimer = false;
+var setup = function() {
+    loopTimer = setInterval(loop, frameDelay);
+}
+
+var loop = function() {
+    console.log('falling');
+    moveBall('gra');
+}
+
 function moveBall(direction) {
     var leftNumbers = ball.style.left.replace('px', '');
-    var topNumbers = ball.style.top.replace('px', '');
-    var rightNumbers = ball.style.right.replace('px', '');
     var bottomNumbers = ball.style.bottom.replace('px', '');
     var left = parseInt(leftNumbers, 10);
-    var top = parseInt(topNumbers, 10);
-    var right = parseInt(rightNumbers, 10);
     var bottom = parseInt(bottomNumbers, 10);
 
     if (direction == 'up' && bottom < 600) {
         ball.style.bottom = `${bottom + 33}px`;
-    }
-
-    if (direction == 'right' && left < 800) {
+    } else if (direction == 'right' && left < 800) {
         ball.style.left = `${left + 33}px`
-    }
-
-    if (direction == 'down' && bottom > 0) {
+    } else if (direction == 'down' && bottom > 0) {
         ball.style.bottom = `${bottom - 33}px`;
-    }
-
-    if (direction == 'left' && left > 0) {
+    } else if (direction == 'left' && left > 0) {
         ball.style.left = `${left - 33}px`
+    } else if (direction == 'gra' && bottom > 0) {
+        ball.style.bottom = `${bottom - 3}px`
+    } else {
+        console.log('moveBall else');
     }
 }
 
+
+
 document.addEventListener('keydown', function(e) {
 
+    console.log(e.which);
+    
     switch (e.which) {
 
     case 37:
@@ -95,7 +105,12 @@ document.addEventListener('keydown', function(e) {
         break;
 
     default:
+        console.log('this must not happen');
         break;
     }
     
 });
+
+
+
+setup();
