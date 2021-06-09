@@ -23,12 +23,21 @@ const box = document.createElement('div');
 box.style.position = "absolute";
 box.style.bottom = "12px";
 box.style.left = getStyleValue(screen.style.width) / 2 + "px";
-//box.style.right = getStyleValue(box.style.left) + getStyleValue(box.style.width) + "px";
-box.style.width = "80px";
-box.style.height = "333px";
+box.style.width = getStyleValue(screen.style.width) / 5 + "px";//"80px";
+box.style.height = getStyleValue(screen.style.height) / 3 + "px";//"333px";
 box.style.backgroundColor = "#eae060";
 box.style.border = "solid 2px #bbb44f";
 box.style.borderRadius = "5px";
+
+const pux = document.createElement('div');
+pux.style.position = "absolute";
+pux.style.bottom = "12px";
+pux.style.width = box.style.width;
+pux.style.height = getStyleValue(box.style.height) / 2 + "px";//"333px";
+pux.style.left = getStyleValue(box.style.left) - getStyleValue(box.style.width) + "px";
+pux.style.backgroundColor = "#ea60e0";
+pux.style.border = "solid 2px #bbb44f";
+pux.style.borderRadius = "5px";
 
 const ball = document.createElement('div');
 ball.style.position = "absolute";
@@ -42,6 +51,7 @@ ball.style.borderRadius = "20px";
 
 screen.appendChild(floor);
 screen.appendChild(box);
+screen.appendChild(pux);
 screen.appendChild(ball);
 
 root.appendChild(screen);
@@ -52,12 +62,10 @@ function outside(element, dimension) {
     let y = getStyleValue(element.style.bottom);
     let w = getStyleValue(element.style.width);
 
-    //let xbox = getX(box);
-    //let ybox = getY(box);
     let wbox = getStyleValue(box.style.width);
     let hbox = getStyleValue(box.style.height);
     let xboxmin = getStyleValue(box.style.left);
-    let xboxmax = xboxmin + wbox;// / 2;
+    let xboxmax = xboxmin + wbox;
 
     console.log('box ' + ' ' + hbox);
     console.log('ball ' + x + ' ' + y);
@@ -81,70 +89,70 @@ function getStyleValue(eleparam) { return parseInt(eleparam.replace('px', ''), 1
 function getX(element) { return getStyleValue(element.style.left); }
 function getY(element) { return getStyleValue(element.style.bottom); }
 
-
-
-
-// move any direction
+// move right, move left, jump up and fall down with the gravity
 
 var frameRate = 1/40; // Seconds
 var frameDelay = frameRate * 1000; // ms
 var loopTimer = false;
-var setup = function() {
+var setup = function()
+{
     loopTimer = setInterval(loop, frameDelay);
 }
 
-var loop = function() {
+var loop = function()
+{
     console.log('falling ...');
-    moveMoi(ball, 'gravity');
+    movElement(ball, 'gravity');
 }
 
-function moveMoi(
-    element,
-    direction,
-    xmin = 0,//getStyleValue(ball.style.width) / 2,
-    xmax = getStyleValue(screen.style.width),// - getStyleValue(ball.style.width) * 2,
-    ymin = getStyleValue(floor.style.height),
-    ymax = getStyleValue(screen.style.height)// - getStyleValue(ball.style.height) * 2
-                )
+function movElement(element, direction, xmin = 0, xmax = getStyleValue(screen.style.width),
+                 ymin = getStyleValue(floor.style.height), ymax = getStyleValue(screen.style.height))
 {
     var left = getX(element);
     var bottom = getY(element);
 
-    if (direction == 'jump' && (bottom < ymin || bottom > getStyleValue(box.style.height))) {//}< ymax) {
+    if (direction == 'jump' && bottom < ymin) {// || bottom > getStyleValue(box.style.height))) {//}< ymax) {
         element.style.bottom = `${bottom + 444}px`;
-    } else if (direction == 'right' && left < xmax && outsideBox(element) > 0) {
-        element.style.left = `${left + 1}px`;
-    } else if (direction == 'left' && left > xmin && outsideBox(element) > 0) {
-        element.style.left = `${left - 1}px`;
+    } else if (direction == 'right' && left < xmax) {
+        if (outsideBox(element) > 0) element.style.left = `${left + 8}px`;
+        else element.style.left = `${left - 1}px`;
+    } else if (direction == 'left' && left > xmin) {
+        if (outsideBox(element) > 0) element.style.left = `${left - 8}px`;
+        else element.style.left = `${left + 1}px`;
     } else if (direction == 'gravity' && bottom > ymin && outsideBox(element) > 0) {
-        element.style.bottom = `${bottom - 9}px`;
+        if (outsideBox(element) > 0) element.style.bottom = `${bottom - 9}px`;
+        else element.style.bottom = `${bottom - 9}px`;
     } else {
-        console.log('moveMoi else');
+        console.log('movElement else');
     }
 }
 
 
-
 document.addEventListener('keydown', function(e) {
 
-    console.log(e.which);
+    let ewi = e.which;
+    console.log(ewi);
     
-    switch (e.which) {
+    switch (ewi) {
 
     case 37:
-        moveMoi(ball, 'left');
+        movElement(ball, 'left');
         break;
 
     case 38:
-        moveMoi(ball, 'jump');
+        movElement(ball, 'jump');
+        break;
+
+    case 32:// space key code
+        movElement(ball, 'jump');
         break;
 
     case 39:
-        moveMoi(ball, 'right');
+        movElement(ball, 'right');
         break;
 
     case 40:
-        moveMoi(ball, 'gravity');
+        movElement(ball, 'gravity');
         break;
 
     default:
