@@ -99,24 +99,40 @@ function movElement(element, direction, xmin = 0, xmax = getJustNumber(screen.st
         console.log('movElement else');
     }
 
-    if (isFree(element)) { ; } else {
-        console.log(`hit the box`);
+    if (needsCorrection(element)) {
+        console.log(`element hit something`);
         setPosition(element, left, bottom);
     }
 
-    if (isInside(element, screen)) { ; } else {
-        console.log(`hit the wall`);
-        setPosition(element, left, bottom);
-    }
 }
 
-function isFree(element) {// say 'yes' if occupied position 
-    outofbox = !isIn(element, box); //isNotIn(element, box, 'x') + isNotIn(element, box, 'y');
-    outofpux = !isIn(element, pux); //)isNotIn(element, pux, 'x') + isNotIn(element, pux, 'y');
+function needsCorrection(element) { return isInForbiddenZone(element) || isNotOnTheScreen(element); }
+function isInForbiddenZone(element) { return !isFree(element); }// defines object freedom    
+function isFree(element) {    return !isContact(element, box) && !isContact(element, pux) && !isContact(element, floor); }
+function isContact(element, eframe) {// 
 
-    return outofpux * outofbox;
+    let x = getJustNumber(element.style.left);
+    let y = getJustNumber(element.style.bottom);
+    let w = getJustNumber(element.style.width);
+    let h = getJustNumber(element.style.height);
+
+    let xf = getJustNumber(eframe.style.left);
+    let yf = getJustNumber(eframe.style.bottom);
+    let wf = getJustNumber(eframe.style.width);
+    let hf = getJustNumber(eframe.style.height);
+
+    let deltax = x - xf;
+    let deltay = y - yf;
+
+    if (deltax < -w) return false;
+    if (deltax > wf) return false;
+    if (deltay < -h) return false;
+    if (deltay > hf) return false;
+
+    return true;
 }
 
+function isNotOnTheScreen(element) { return !isInside(element, screen); }
 function isInside(element, eframe) {//want to know if the element is in the eframe
     
     let x = getJustNumber(element.style.left);
@@ -127,34 +143,17 @@ function isInside(element, eframe) {//want to know if the element is in the efra
     let wf = getJustNumber(eframe.style.width);
     let hf = getJustNumber(eframe.style.height);
     
-    if (x < 0) return false;
-    if (x > wf - w) return false;
-    if (y < 0) return false;
-    if (y > hf - h) return false;
+    let deltah = hf - h;
+    let deltaw = wf - w;
+
+    if (0 > x) return false;
+    if (x > deltaw) return false;
+    if (0 > y) return false;
+    if (y > deltah) return false;
     
     return true;
 }
     
-function isIn(element, eframe) {
-
-    let x = getJustNumber(element.style.left);
-    let y = getJustNumber(element.style.bottom);
-    let w = getJustNumber(element.style.width);
-    let h = getJustNumber(element.style.height);
-
-    let wf = getJustNumber(eframe.style.width);
-    let hf = getJustNumber(eframe.style.height);
-    let xf = getJustNumber(eframe.style.left);
-    
-    let xboxmax = xf + wf;
-
-    if (x < xf - w) return false;
-    if (x > xf + wf) return false;
-    if (y > hf + h / 2) return false;
-
-    return true;
-}
-
 function getJustNumber(eleparam, unit = 'px', hmm = 10) { return parseInt(eleparam.replace(unit, ''), hmm); }
 
 // move right, move left, jump up and fall down with the gravity
@@ -162,19 +161,9 @@ function getJustNumber(eleparam, unit = 'px', hmm = 10) { return parseInt(elepar
 var frameRate = 1/40; // Seconds
 var frameDelay = frameRate * 1000; // ms
 var loopTimer = false;
-var setup = function()
-{
-    loopTimer = setInterval(loop, frameDelay);
-}
 
-var loop = function()
-{
-    //console.log('falling ...');
-    movElement(sujet, 'gravity');
-}
-
-
-
+var setup = function() {    loopTimer = setInterval(loop, frameDelay); }
+var loop = function() {    movElement(sujet, 'gravity'); }
 
 document.addEventListener('keydown', function(e) {
 
